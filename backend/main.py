@@ -1,10 +1,11 @@
-from src.calendar_agent import agent
+from src.calendar_agent import create_calendar_agent
+from src.generic_agent import create_generic_agent
 import asyncio
 
 from dotenv import load_dotenv
 load_dotenv()
 
-from google.adk.sessions import InMemorySessionService, Session
+from google.adk.sessions import InMemorySessionService
 from google.adk.events import Event
 from google.adk.runners import Runner
 from google.genai import types
@@ -14,9 +15,10 @@ from typing import AsyncGenerator
 APP_NAME = "calendar_chat_app"
 USER_ID = "test_user"
 
-session_service = InMemorySessionService()
-runner = Runner(agent=agent, app_name=APP_NAME, session_service=session_service)
 
+session_service = InMemorySessionService()
+calendar_agent = create_calendar_agent()
+runner = Runner(agent=calendar_agent, app_name=APP_NAME, session_service=session_service)
 
 async def execute_agent(session_id: str, query: str) -> AsyncGenerator[Event, None]:
   content = types.Content(role='user', parts=[types.Part(text=query)])
