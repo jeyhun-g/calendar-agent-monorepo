@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend1:
+    build:
+      context: ../backend
+    expose:
+      - 8000
+    environment:
+      - SERVICE_NAME=backend1
+    networks:
+      lb_net:
+        ipv4_address: 192.168.1.10
+
+  backend2:
+    build:
+      context: ../backend
+    expose:
+      - 8000
+    environment:
+      - SERVICE_NAME=backend2
+    networks:
+      lb_net:
+        ipv4_address: 192.168.1.11
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - lb_net
+
+networks:
+  lb_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
