@@ -1,14 +1,14 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
 from src.calendar_agent import create_calendar_agent
 from google.adk.sessions import InMemorySessionService
-from google.adk.runners import Runner
 from google.genai import types
+
+from .src.server import init_server
 
 # Load environment variables
 load_dotenv()
@@ -17,26 +17,9 @@ load_dotenv()
 APP_NAME = "calendar_chat_app"
 USER_ID = "test_user"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Initialize calendar agent components
-    session_service = InMemorySessionService()
-    calendar_agent = create_calendar_agent()
-    runner = Runner(agent=calendar_agent, app_name=APP_NAME, session_service=session_service)
-
-    # Create a new session for the application
-    session_id = "new_session"
-    session_service.create_session(session_id=session_id, app_name=APP_NAME, user_id=USER_ID)
-
-    # Store services on app state for use in endpoints
-    app.state.session_service = session_service
-    app.state.runner = runner
-    app.state.session_id = session_id
-
-    yield
-    # No explicit shutdown logic
-
-app = FastAPI(lifespan=lifespan)
+calendar_agent = create_calendar_agent()
+session_service = InMemorySessionService()
+app = init_server(app_name=APP_NAME, calendar_agent=calendar_agent, session_service=session_service)
   
 class QueryRequest(BaseModel):
     query: str
@@ -44,7 +27,7 @@ class QueryRequest(BaseModel):
 @app.get("/health")
 async def health():
     service_name = os.getenv("SERVICE_NAME")
-    return {"service_name": service_name}
+    return { "service_name": service_name, "status": "okay" }
   
 @app.post("/query")
 async def query(request: QueryRequest):
@@ -68,7 +51,7 @@ async def query(request: QueryRequest):
         if event.is_final_response():
             final_response = event.content.parts[0].text
 
-    return {"response": final_response}
+    return { "response": final_response }
 
 
 if __name__ == "__main__":
