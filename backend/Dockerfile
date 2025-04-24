@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+ENV PYTHONPATH=/app:${PYTHONPATH}
+
 RUN pip install --no-cache-dir pipenv
 
 COPY Pipfile Pipfile.lock ./
@@ -12,6 +14,7 @@ COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system --deploy
 
 COPY server.py ./
+COPY src ./src
 
 EXPOSE 8000
 

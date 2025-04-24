@@ -9,7 +9,7 @@ litellm = "*"
 fastapi = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 python-dotenv = "*"
-psycopg2 = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 pytest = "*"

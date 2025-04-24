@@ -1,11 +1,17 @@
 services:
   backend1:
+    restart: always
     build:
       context: ../backend
     expose:
       - 8000
     environment:
       - SERVICE_NAME=backend1
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_HOST=192.168.1.20
+      - DB_PORT=5432
     depends_on:
       - db
     networks:
@@ -13,12 +19,18 @@ services:
         ipv4_address: 192.168.1.10
 
   backend2:
+    restart: always
     build:
       context: ../backend
     expose:
       - 8000
     environment:
       - SERVICE_NAME=backend2
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_HOST=192.168.1.20
+      - DB_PORT=5432
     depends_on:
       - db
     networks:
@@ -53,6 +65,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      lb_net:
+        ipv4_address: 192.168.1.20
 
 volumes:
   postgres_data:

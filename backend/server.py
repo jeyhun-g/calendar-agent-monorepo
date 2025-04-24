@@ -3,11 +3,10 @@ import os
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from src.calendar_agent import create_calendar_agent
-from google.adk.sessions import InMemorySessionService, DatabaseSessionService
+from google.adk.sessions import DatabaseSessionService
 from google.genai import types
 
-from src.server import init_server
+from src import create_calendar_agent, init_server
 
 # Load environment variables
 load_dotenv()
