@@ -1,0 +1,11 @@
+meta {
+  name: Get all events
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{server}}/events
+  body: json
+  auth: inherit
+}

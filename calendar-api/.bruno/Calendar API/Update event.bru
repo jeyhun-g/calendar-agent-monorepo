@@ -1,0 +1,17 @@
+meta {
+  name: Update event
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{server}}/events/be25455dd1cbb12a5c471568804693b5828e65ebd7912661e52d527e09760c2c
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "event_name": "new event 2"
+  }
+}
