@@ -10,13 +10,13 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DB_USER=${DB_USER}
       - DB_PWD=${DB_PWD}
-      - DB_HOST=192.168.1.20
+      - DB_HOST=${DATABASE_IP}
       - DB_PORT=5432
     depends_on:
       - db
     networks:
       lb_net:
-        ipv4_address: 192.168.1.10
+        ipv4_address: ${BACKEND_IP_1}
 
   backend2:
     restart: always
@@ -29,13 +29,45 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - DB_USER=${DB_USER}
       - DB_PWD=${DB_PWD}
-      - DB_HOST=192.168.1.20
+      - DB_HOST=${DATABASE_IP}
       - DB_PORT=5432
     depends_on:
       - db
     networks:
       lb_net:
-        ipv4_address: 192.168.1.11
+        ipv4_address: ${BACKEND_IP_2}
+
+  calendar_api:
+    restart: always
+    build:
+      context: ../calendar-api
+    expose:
+      - 8000
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_HOST=${DATABASE_IP}
+      - DB_PORT=5432
+    depends_on:
+      - db
+    networks:
+      lb_net:
+        ipv4_address: ${CALENDAR_API_IP}
+  
+  calendar_mcp:
+    restart: always
+    build:
+      context: ../calendar-mcp
+    expose:
+      - 8040
+    environment:
+      - PORT=8040
+      - CALENDAR_API_BASE_URL=${CALENDAR_API_IP}
+    depends_on:
+      - db
+    networks:
+      lb_net:
+        ipv4_address: ${CALENDAR_MCP_IP}
 
   caddy:
     build:
@@ -67,7 +99,7 @@ services:
       retries: 5
     networks:
       lb_net:
-        ipv4_address: 192.168.1.20
+        ipv4_address: ${DATABASE_IP}
 
 volumes:
   postgres_data:
